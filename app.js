@@ -86,6 +86,7 @@ const loginPass = $('loginPass');
 const btnLogin = $('btnLogin');
 const loginError = $('loginError');
 const btnLogout = $('btnLogout');
+const btnMostraPass = $('btnMostraPass');
 
 // ---- RILEVA SE È DESKTOP ----
 function isMobile() {
@@ -179,6 +180,12 @@ loginUser.addEventListener('keydown', e => { if (e.key === 'Enter') loginPass.fo
 loginPass.addEventListener('keydown', e => { if (e.key === 'Enter') btnLogin.click(); });
 
 btnLogout.addEventListener('click', logout);
+
+btnMostraPass.addEventListener('click', () => {
+    const isPass = loginPass.type === 'password';
+    loginPass.type = isPass ? 'text' : 'password';
+    btnMostraPass.textContent = isPass ? '🙈' : '👁️';
+});
 
 // ---- CLIENTE ----
 btnAvvia.addEventListener('click', async () => {

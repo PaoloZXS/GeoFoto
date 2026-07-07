@@ -18,7 +18,10 @@
             <div class="logo">🔐</div>
             <h1 style="font-size:22px">Accesso GeoFoto</h1>
             <input type="text" id="loginUser" placeholder="Username" autocomplete="username" style="margin-bottom:12px">
-            <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" style="margin-bottom:20px">
+            <div class="password-wrapper">
+                <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+                <button id="btnMostraPass" class="btn-eye" type="button" aria-label="Mostra password">👁️</button>
+            </div>
             <button id="btnLogin" class="btn-primary">Accedi</button>
             <p id="loginError" style="color:#f44;font-size:14px;margin-top:12px;display:none"></p>
         </div>
