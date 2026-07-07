@@ -13,7 +13,7 @@ const AUTH_TOKEN = 'geofoto-token-2026';
 const LOGIN_USER = 'Codarini';
 const LOGIN_PASS = 'coda1970rini';
 
-let authToken = localStorage.getItem('geofoto_token') || '';
+let authToken = ''; // Solo in memoria, mai persistente
 const savedUser = localStorage.getItem('geofoto_user') || '';
 
 function isLoggedIn() { return authToken === AUTH_TOKEN; }
@@ -44,7 +44,6 @@ function setImgWithAuth(imgEl, url) {
 
 function logout() {
     authToken = '';
-    localStorage.removeItem('geofoto_token');
     // username resta in localStorage
     mostraSchermo(screenLogin);
     loginPass.value = '';
@@ -165,7 +164,6 @@ btnLogin.addEventListener('click', () => {
 
     if (username === LOGIN_USER && password === LOGIN_PASS) {
         authToken = AUTH_TOKEN;
-        localStorage.setItem('geofoto_token', AUTH_TOKEN);
         localStorage.setItem('geofoto_user', username);
         loginError.style.display = 'none';
         mostraSchermo(screenCliente);
