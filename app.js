@@ -169,7 +169,7 @@ btnConferma.addEventListener('click', async () => {
         xhr.onload = () => {
             mostraStatus(false, '');
             if (xhr.status === 200) {
-                mostraMessaggio('✅', 'Salvato!', 'Foto salvata sul server', () => {
+                mostraMessaggio('✅', 'Salvataggio eseguito !', '', () => {
                     mostraSchermo(screenCamera);
                 });
             } else {
