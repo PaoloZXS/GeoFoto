@@ -50,8 +50,12 @@ html, body {
     max-width: 380px;
     text-align: center;
 }
-.logo { font-size: 64px; margin-bottom: 8px; }
-h1 { font-size: 28px; margin-bottom: 24px; color: #4fc3f7; }
+.logo { line-height: 0; margin-bottom: 2px; text-align: center; font-size: 0; }
+.logo img { display: inline-block; }
+#screen-login .logo { line-height: 0; margin-bottom: 4px; text-align: center; font-size: inherit; }
+#screen-login .logo img { display: inline-block; }
+h1 { font-size: 28px; margin: 0 0 20px; color: #4fc3f7; }
+#screen-cliente h1 { margin-bottom: 32px; }
 
 input[type="text"], input[type="password"] {
     width: 100%;
@@ -108,8 +112,9 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity .2s;
+    transition: opacity .2s, background .2s;
 }
+.btn-primary:hover { opacity: .85; }
 .btn-primary:active { opacity: .7; }
 .btn-primary:disabled { opacity: .4; }
 
@@ -313,27 +318,27 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     cursor: pointer;
     transition: background .2s, color .2s;
 }
+.btn-archivio:hover { background: rgba(79,195,247,.1); }
 .btn-archivio:active {
     background: #4fc3f7;
     color: #fff;
 }
 
 .btn-logout {
-    margin-top: 16px;
+    margin-top: 12px;
     width: 100%;
-    padding: 10px;
-    border: 1px solid #555;
-    border-radius: 8px;
+    padding: 14px;
+    border: 2px solid #555;
+    border-radius: 10px;
     background: transparent;
-    color: #888;
-    font-size: 14px;
+    color: #ccc;
+    font-size: 18px;
+    font-weight: 600;
     cursor: pointer;
-    transition: color .2s, border-color .2s;
+    transition: background .2s, color .2s, border-color .2s;
 }
-.btn-logout:active {
-    color: #f44;
-    border-color: #f44;
-}
+.btn-logout:hover { border-color: #f44; color: #f44; }
+.btn-logout:active { background: rgba(255,68,68,.15); color: #f44; border-color: #f44; }
 
 /* ---------- SCHERMATA ARCHIVIO CLIENTI ---------- */
 #screen-archivio-clienti {
