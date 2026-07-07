@@ -243,11 +243,71 @@ function renderListaClienti(clienti) {
     clienti.forEach(c => {
         const div = document.createElement('div');
         div.className = 'item-cliente-archivio';
-        div.innerHTML = `<span class="icona">📁</span><span class="nome">${c}</span><span class="conta">→</span>`;
-        div.addEventListener('click', () => apriCarosello(c));
+        div.innerHTML = `<span class="icona">📁</span><span class="nome">${c}</span>
+            <span class="elimina-cliente" data-cliente="${c}">🗑️</span>
+            <span class="conta">→</span>`;
+        div.addEventListener('click', e => {
+            if (e.target.classList.contains('elimina-cliente')) return;
+            apriCarosello(c);
+        });
         listaClientiArchivio.appendChild(div);
     });
+
+    // Aggiungi handler eliminazione
+    document.querySelectorAll('.elimina-cliente').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const cliente = btn.dataset.cliente;
+            mostraConfermaElimina(cliente);
+        });
+    });
 }
+
+// ---- CONFERMA ELIMINAZIONE CLIENTE ----
+const confirmOverlay = $('confirmOverlay');
+const confirmTitle = $('confirmTitle');
+const confirmText = $('confirmText');
+const confirmConferma = $('confirmConferma');
+const confirmAnnulla = $('confirmAnnulla');
+let clienteDaEliminare = '';
+
+function mostraConfermaElimina(cliente) {
+    clienteDaEliminare = cliente;
+    confirmTitle.textContent = `Eliminare ${cliente}?`;
+    confirmText.textContent = 'Tutte le foto di questo cliente verranno cancellate definitivamente.';
+    confirmOverlay.style.display = 'flex';
+}
+
+confirmAnnulla.addEventListener('click', () => {
+    confirmOverlay.style.display = 'none';
+    clienteDaEliminare = '';
+});
+
+confirmConferma.addEventListener('click', async () => {
+    const c = clienteDaEliminare;
+    confirmOverlay.style.display = 'none';
+    clienteDaEliminare = '';
+
+    try {
+        const res = await fetch('/api/elimina-cliente', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `cliente=${encodeURIComponent(c)}`
+        });
+
+        if (res.ok) {
+            mostraMessaggio('✅', 'Eliminato!', `Cartella "${c}" eliminata con successo`, () => {
+                // Ricarica lista clienti
+                btnArchivio.click();
+            });
+        } else {
+            const txt = await res.text();
+            mostraMessaggio('❌', 'Errore', txt || 'Eliminazione fallita');
+        }
+    } catch (e) {
+        mostraMessaggio('❌', 'Errore', e.message);
+    }
+});
 
 // ---- ARCHIVIO: INDIETRO ----
 btnArchivioIndietro.addEventListener('click', () => {
