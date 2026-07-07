@@ -223,7 +223,12 @@ btnConferma.addEventListener('click', async () => {
             mostraStatus(false, '');
             if (xhr.status === 200) {
                 mostraMessaggio('✅', 'Salvataggio eseguito !', '', () => {
-                    mostraSchermo(screenCamera);
+                    if (isMobile()) {
+                        mostraSchermo(screenCamera);
+                    } else {
+                        fermaCamera();
+                        inputCliente.value = cliente;
+                    }
                 });
             } else {
                 mostraMessaggio('❌', 'Errore', xhr.responseText || 'Salvataggio fallito');

@@ -93,6 +93,35 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API mock /api/upload
+    if (pathname === '/api/upload' && req.method === 'POST') {
+        let body = '';
+        req.on('data', c => body += c);
+        req.on('end', () => {
+            // Estrai cliente dal body multipart
+            const clienteMatch = body.match(/name="cliente"\r\n\r\n([^\r\n]+)/);
+            const cliente = clienteMatch ? clienteMatch[1] : 'Sconosciuto';
+
+            // Genera nome file fittizio come farebbe l'app
+            const now = new Date();
+            const filename = now.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '.jpg';
+
+            // Aggiungi la foto al cliente (crea array se non esiste)
+            if (!fotoTest[cliente]) fotoTest[cliente] = [];
+            fotoTest[cliente].push(filename);
+
+            // Se il cliente non era nella lista, aggiungilo
+            if (!clientiTest.includes(cliente)) {
+                clientiTest.push(cliente);
+                clientiTest.sort((a, b) => a.localeCompare(b));
+            }
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('OK');
+        });
+        return;
+    }
+
     // File statici
     let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
     const ext = path.extname(filePath);
