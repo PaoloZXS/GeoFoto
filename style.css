@@ -176,27 +176,28 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     width: 100%;
     max-width: 400px;
 }
-.preview-actions button {
+.preview-actions .btn-secondary,
+.preview-actions .btn-primary {
     flex: 1;
-    width: auto;
-    padding: 12px 10px;
+    width: auto !important;
+    padding: 14px 10px;
     font-size: 15px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
 }
-.preview-actions #btnRiscatta {
+.preview-actions .btn-secondary {
     background: transparent;
     border: 2px solid #555;
     color: #ccc;
 }
-.preview-actions #btnConferma {
+.preview-actions .btn-primary {
     background: #4fc3f7;
     border: none;
     color: #fff;
 }
-.preview-actions #btnRiscatta:active { background: #333; }
-.preview-actions #btnConferma:active { opacity: .7; }
+.preview-actions .btn-secondary:active { background: #333; }
+.preview-actions .btn-primary:active { opacity: .7; }
 
 /* ---------- PANNELLO MESSAGGIO ---------- */
 .msg-overlay {
