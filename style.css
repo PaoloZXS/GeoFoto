@@ -385,6 +385,19 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     font-size: 13px;
     color: #888;
 }
+.btn-elimina-selezionate {
+    background: #f44;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity .2s;
+}
+.btn-elimina-selezionate:active { opacity: .7; }
 .griglia-foto {
     flex: 1;
     overflow-y: auto;
@@ -409,6 +422,32 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     overflow: hidden;
     cursor: pointer;
     background: #0f3460;
+}
+.griglia-item.selected {
+    outline: 3px solid #4fc3f7;
+    outline-offset: -3px;
+}
+.griglia-item .sel-overlay {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.6);
+    background: rgba(0,0,0,.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: transparent;
+    z-index: 3;
+    transition: background .15s;
+}
+.griglia-item.selected .sel-overlay {
+    background: #4fc3f7;
+    border-color: #4fc3f7;
+    color: #fff;
 }
 .griglia-item img {
     width: 100%;
