@@ -7,7 +7,8 @@
         "start": "node server.js"
     },
     "dependencies": {
+        "basic-ftp": "^5.0.5",
         "formidable": "^3.5.1",
-        "basic-ftp": "^5.0.5"
+        "jsonwebtoken": "^9.0.3"
     }
 }

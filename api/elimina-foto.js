@@ -1,8 +1,10 @@
 const http = require('http');
 const querystring = require('querystring');
+const { requireAuth } = require('./_auth');
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+    if (!requireAuth(req, res)) return;
 
     try {
         const body = await new Promise(resolve => {

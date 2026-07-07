@@ -12,6 +12,18 @@
 </head>
 <body>
 
+    <!-- SCHERMATA LOGIN -->
+    <div id="screen-login" class="screen active">
+        <div class="card">
+            <div class="logo">🔐</div>
+            <h1 style="font-size:22px">Accesso GeoFoto</h1>
+            <input type="text" id="loginUser" placeholder="Username" autocomplete="username" style="margin-bottom:12px">
+            <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" style="margin-bottom:20px">
+            <button id="btnLogin" class="btn-primary">Accedi</button>
+            <p id="loginError" style="color:#f44;font-size:14px;margin-top:12px;display:none"></p>
+        </div>
+    </div>
+
     <!-- SCHERMATA CLIENTE -->
     <div id="screen-cliente" class="screen active">
         <div class="card">
@@ -25,6 +37,7 @@
 
             <button id="btnAvvia" class="btn-primary">Avvia Fotocamera</button>
             <button id="btnArchivio" class="btn-secondary btn-archivio">Archivio Foto</button>
+            <button id="btnLogout" class="btn-logout">Esci</button>
         </div>
     </div>
 

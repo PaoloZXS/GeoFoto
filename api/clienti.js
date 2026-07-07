@@ -1,7 +1,9 @@
 const http = require('http');
+const { requireAuth } = require('./_auth');
 
 module.exports = async (req, res) => {
     if (req.method !== 'GET') return res.status(405).send('Method not allowed');
+    if (!requireAuth(req, res)) return;
     try {
         const data = await new Promise((resolve, reject) => {
             http.get('http://62.110.25.18/condivisionedati/lista.aspx', r => {

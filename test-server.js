@@ -1,6 +1,27 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = 'geofoto-secret-dev-2026';
+const USERNAME = 'Codarini';
+const PASSWORD = 'coda1970rini';
+
+function generateToken() {
+    return jwt.sign({ username: USERNAME }, JWT_SECRET, { expiresIn: '7d' });
+}
+
+function requireAuth(req, res) {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    try {
+        return jwt.verify(token, JWT_SECRET);
+    } catch {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Unauthorized' }));
+        return null;
+    }
+}
 
 const MIME = {
     '.html': 'text/html; charset=utf-8',
@@ -13,7 +34,6 @@ const MIME = {
     '.ico': 'image/x-icon',
 };
 
-// Dati di esempio per il test
 const clientiTest = ['Mario Rossi', 'Laura Bianchi', 'Giuseppe Verdi', 'Anna Neri', 'Marco Gialli'];
 
 const fotoTest = {
@@ -28,14 +48,37 @@ const server = http.createServer((req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const pathname = url.pathname;
 
-    // API mock /api/clienti
+    // API /api/login (senza auth)
+    if (pathname === '/api/login' && req.method === 'POST') {
+        let body = '';
+        req.on('data', c => body += c);
+        req.on('end', () => {
+            const params = new URLSearchParams(body);
+            const username = params.get('username');
+            const password = params.get('password');
+            if (username === USERNAME && password === PASSWORD) {
+                const token = generateToken();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ token, username: USERNAME }));
+            } else {
+                res.writeHead(401, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Credenziali errate' }));
+            }
+        });
+        return;
+    }
+
+    // Tutte le altre /api/* richiedono auth
+    if (pathname.startsWith('/api/')) {
+        if (!requireAuth(req, res)) return;
+    }
+
     if (pathname === '/api/clienti') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(clientiTest));
         return;
     }
 
-    // API mock /api/elimina-foto
     if (pathname === '/api/elimina-foto' && req.method === 'POST') {
         let body = '';
         req.on('data', c => body += c);
@@ -52,7 +95,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // API mock /api/elimina-cliente
     if (pathname === '/api/elimina-cliente' && req.method === 'POST') {
         let body = '';
         req.on('data', c => body += c);
@@ -60,7 +102,6 @@ const server = http.createServer((req, res) => {
             const params = new URLSearchParams(body);
             const cliente = params.get('cliente');
             delete fotoTest[cliente];
-            // Rimuovi anche dalla lista clienti
             const idx = clientiTest.indexOf(cliente);
             if (idx !== -1) clientiTest.splice(idx, 1);
             res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -69,13 +110,11 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // API mock /api/foto
     if (pathname === '/api/foto') {
         const cliente = url.searchParams.get('cliente');
         const img = url.searchParams.get('img');
 
         if (img) {
-            // Restituisci un'immagine placeholder
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
                 <rect width="800" height="600" fill="#1a1a2e"/>
                 <text x="400" y="280" text-anchor="middle" fill="#4fc3f7" font-size="48">📷</text>
@@ -93,29 +132,20 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // API mock /api/upload
     if (pathname === '/api/upload' && req.method === 'POST') {
         let body = '';
         req.on('data', c => body += c);
         req.on('end', () => {
-            // Estrai cliente dal body multipart
             const clienteMatch = body.match(/name="cliente"\r\n\r\n([^\r\n]+)/);
             const cliente = clienteMatch ? clienteMatch[1] : 'Sconosciuto';
-
-            // Genera nome file fittizio come farebbe l'app
             const now = new Date();
             const filename = now.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '.jpg';
-
-            // Aggiungi la foto al cliente (crea array se non esiste)
             if (!fotoTest[cliente]) fotoTest[cliente] = [];
             fotoTest[cliente].push(filename);
-
-            // Se il cliente non era nella lista, aggiungilo
             if (!clientiTest.includes(cliente)) {
                 clientiTest.push(cliente);
                 clientiTest.sort((a, b) => a.localeCompare(b));
             }
-
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('OK');
         });

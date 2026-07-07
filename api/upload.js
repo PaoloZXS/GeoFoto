@@ -1,9 +1,11 @@
 const { formidable } = require('formidable');
 const fs = require('fs');
 const http = require('http');
+const { requireAuth } = require('./_auth');
 
 async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+    if (!requireAuth(req, res)) return;
 
     try {
         const form = formidable({});

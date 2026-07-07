@@ -3,13 +3,54 @@ let cliente = '';
 let stream = null;
 let frontCamera = false;
 let currentFile = null;
-let filePickerFromScarta = false; // true se il file picker è stato aperto da "Scarta", false se da "Avvia Fotocamera"
+let filePickerFromScarta = false;
 
 // Endpoint per upload foto
 const API_URL = '/api/upload';
 
+// ---- AUTENTICAZIONE ----
+let authToken = localStorage.getItem('geofoto_token') || '';
+const savedUser = localStorage.getItem('geofoto_user') || '';
+
+function isLoggedIn() { return !!authToken; }
+
+function apiFetch(url, opts = {}) {
+    if (!opts.headers) opts.headers = {};
+    opts.headers['Authorization'] = 'Bearer ' + authToken;
+    return fetch(url, opts).then(r => {
+        if (r.status === 401) { logout(); throw new Error('Unauthorized'); }
+        return r;
+    });
+}
+
+async function apiFetchBlob(url) {
+    const r = await apiFetch(url);
+    return r.blob();
+}
+
+function setImgWithAuth(imgEl, url) {
+    imgEl.style.opacity = '0.3';
+    apiFetchBlob(url).then(blob => {
+        imgEl.src = URL.createObjectURL(blob);
+        imgEl.style.opacity = '1';
+    }).catch(() => {
+        imgEl.style.opacity = '0.3';
+    });
+}
+
+function logout() {
+    authToken = '';
+    localStorage.removeItem('geofoto_token');
+    // username resta in localStorage
+    mostraSchermo(screenLogin);
+    loginPass.value = '';
+    loginUser.value = savedUser;
+    loginError.style.display = 'none';
+}
+
 // ---- ELEMENTI DOM ----
 const $ = id => document.getElementById(id);
+const screenLogin = $('screen-login');
 const screenCliente = $('screen-cliente');
 const screenCamera = $('screen-camera');
 const screenPreview = $('screen-preview');
@@ -36,6 +77,11 @@ const msgBtn = $('msgBtn');
 const suggestionList = $('suggestionList');
 const fileInput = $('fileInput');
 const multiFileBadge = $('multiFileBadge');
+const loginUser = $('loginUser');
+const loginPass = $('loginPass');
+const btnLogin = $('btnLogin');
+const loginError = $('loginError');
+const btnLogout = $('btnLogout');
 
 // ---- RILEVA SE È DESKTOP ----
 function isMobile() {
@@ -47,13 +93,14 @@ if (!isMobile()) {
     btnAvvia.textContent = 'Carica File';
 }
 let clientiEsistenti = [];
-let pendingFiles = []; // Coda file multipli (desktop)
-let filesTotal = 0;    // Numero totale file selezionati
+let pendingFiles = [];
+let filesTotal = 0;
 
-// ---- CARICA CLIENTI ESISTENTI ----
-fetch('/api/clienti').then(r => r.json()).then(lista => {
-    clientiEsistenti = Array.isArray(lista) ? lista.sort((a, b) => a.localeCompare(b)) : [];
-}).catch(() => {});
+function caricaClienti() {
+    apiFetch('/api/clienti').then(r => r.json()).then(lista => {
+        clientiEsistenti = Array.isArray(lista) ? lista.sort((a, b) => a.localeCompare(b)) : [];
+    }).catch(() => {});
+}
 
 inputCliente.addEventListener('input', () => {
     const val = inputCliente.value.toLowerCase().trim();
@@ -97,9 +144,53 @@ function mostraMessaggio(icona, titolo, testo, callback) {
 
 // ---- NAVIGAZIONE ----
 function mostraSchermo(screen) {
-    [screenCliente, screenCamera, screenPreview, screenArchivioClienti, screenGriglia, screenCarosello].forEach(s => s.classList.remove('active'));
+    [screenLogin, screenCliente, screenCamera, screenPreview, screenArchivioClienti, screenGriglia, screenCarosello].forEach(s => s.classList.remove('active'));
     screen.classList.add('active');
 }
+
+// ---- LOGIN / LOGOUT ----
+btnLogin.addEventListener('click', async () => {
+    const username = loginUser.value.trim();
+    const password = loginPass.value;
+    if (!username || !password) {
+        loginError.textContent = 'Inserisci username e password';
+        loginError.style.display = 'block';
+        return;
+    }
+    loginError.style.display = 'none';
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'Accesso in corso...';
+
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+            authToken = data.token;
+            localStorage.setItem('geofoto_token', data.token);
+            localStorage.setItem('geofoto_user', username);
+            mostraSchermo(screenCliente);
+            caricaClienti();
+        } else {
+            loginError.textContent = data.error || 'Credenziali errate';
+            loginError.style.display = 'block';
+        }
+    } catch {
+        loginError.textContent = 'Errore di connessione';
+        loginError.style.display = 'block';
+    }
+
+    btnLogin.disabled = false;
+    btnLogin.textContent = 'Accedi';
+});
+
+loginUser.addEventListener('keydown', e => { if (e.key === 'Enter') loginPass.focus(); });
+loginPass.addEventListener('keydown', e => { if (e.key === 'Enter') btnLogin.click(); });
+
+btnLogout.addEventListener('click', logout);
 
 // ---- CLIENTE ----
 btnAvvia.addEventListener('click', async () => {
@@ -241,6 +332,7 @@ async function uploadFileMulti(index) {
         const uploaded = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', API_URL);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + authToken);
 
             xhr.upload.onprogress = e => {
                 if (e.lengthComputable) {
@@ -311,6 +403,7 @@ btnConferma.addEventListener('click', async () => {
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', API_URL);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + authToken);
 
         xhr.upload.onprogress = e => {
             if (e.lengthComputable) {
@@ -391,7 +484,7 @@ btnArchivio.addEventListener('click', async () => {
     listaClientiArchivio.innerHTML = '<div style="text-align:center;color:#666;padding:20px">Caricamento...</div>';
 
     try {
-        const res = await fetch('/api/clienti');
+        const res = await apiFetch('/api/clienti');
         let clienti = await res.json();
         if (Array.isArray(clienti)) clienti.sort((a, b) => a.localeCompare(b));
         renderListaClienti(clienti);
@@ -462,7 +555,7 @@ confirmConferma.addEventListener('click', async () => {
 
     if (target.tipo === 'cliente') {
         try {
-            const res = await fetch('/api/elimina-cliente', {
+            const res = await apiFetch('/api/elimina-cliente', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `cliente=${encodeURIComponent(target.cliente)}`
@@ -478,7 +571,7 @@ confirmConferma.addEventListener('click', async () => {
         }
     } else if (target.tipo === 'foto') {
         try {
-            const res = await fetch('/api/elimina-foto', {
+            const res = await apiFetch('/api/elimina-foto', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `cliente=${encodeURIComponent(target.cliente)}&foto=${encodeURIComponent(target.foto)}`
@@ -514,7 +607,7 @@ async function apriGriglia(cliente) {
     grigliaVuoto.style.display = 'none';
 
     try {
-        const res = await fetch(`/api/foto?cliente=${encodeURIComponent(cliente)}`);
+        const res = await apiFetch(`/api/foto?cliente=${encodeURIComponent(cliente)}`);
         const nomi = await res.json();
 
         if (!nomi || nomi.length === 0) {
@@ -539,8 +632,9 @@ function renderGriglia(cliente, fotoNomi) {
 
         const img = document.createElement('img');
         img.loading = 'lazy';
-        img.src = `/api/foto?cliente=${encodeURIComponent(cliente)}&img=${encodeURIComponent(nome)}`;
         img.alt = nome;
+        const imgUrl = `/api/foto?cliente=${encodeURIComponent(cliente)}&img=${encodeURIComponent(nome)}`;
+        setImgWithAuth(img, imgUrl);
 
         const selOverlay = document.createElement('div');
         selOverlay.className = 'sel-overlay';
@@ -594,7 +688,7 @@ btnEliminaSelezionate.addEventListener('click', async () => {
         const nome = fotoDaEliminare[i];
         mostraStatus(true, `Eliminazione ${i + 1} di ${totale}...`);
         try {
-            await fetch('/api/elimina-foto', {
+            await apiFetch('/api/elimina-foto', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `cliente=${encodeURIComponent(clienteCorrente)}&foto=${encodeURIComponent(nome)}`
@@ -637,8 +731,8 @@ function mostraFoto() {
     const cliente = caroselloTitolo.textContent;
     caroselloImg.style.display = 'block';
     caroselloImg.style.opacity = '0.3';
-    caroselloImg.src = `/api/foto?cliente=${encodeURIComponent(cliente)}&img=${encodeURIComponent(nome)}`;
-    caroselloImg.onload = () => { caroselloImg.style.opacity = '1'; };
+    const imgUrl = `/api/foto?cliente=${encodeURIComponent(cliente)}&img=${encodeURIComponent(nome)}`;
+    setImgWithAuth(caroselloImg, imgUrl);
     caroselloCounter.textContent = `${fotoIndex + 1} / ${fotoList.length}`;
     aggiornaBottoniNav();
 }
@@ -665,3 +759,17 @@ btnCaroselloIndietro.addEventListener('click', () => {
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
 }
+
+// ---- AVVIO ----
+function avviaApp() {
+    if (savedUser) loginUser.value = savedUser;
+
+    if (isLoggedIn()) {
+        mostraSchermo(screenCliente);
+        caricaClienti();
+    } else {
+        mostraSchermo(screenLogin);
+    }
+}
+
+avviaApp();
