@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>FotoLavori</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- SCHERMATA CLIENTE -->
+    <div id="screen-cliente" class="screen active">
+        <div class="card">
+            <div class="logo">📷</div>
+            <h1>FotoLavori</h1>
+            <input type="text" id="inputCliente" placeholder="Nome Cliente" autocomplete="off">
+            <small>Le foto vengono salvate in: FotoLavori / NomeCliente /</small>
+            <button id="btnAvvia" class="btn-primary">Avvia Fotocamera</button>
+        </div>
+    </div>
+
+    <!-- SCHERMATA FOTOCAMERA -->
+    <div id="screen-camera" class="screen">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none"></canvas>
+
+        <div class="camera-overlay-top">
+            <span id="clienteBadge">Cliente: </span>
+        </div>
+
+        <div class="camera-overlay-bottom">
+            <button id="btnChiudi" class="btn-circle btn-small">✕</button>
+            <button id="btnScatta" class="btn-circle btn-large">📷</button>
+            <button id="btnFlip" class="btn-circle btn-small">🔄</button>
+        </div>
+
+        <div id="uploadStatus" class="upload-status" style="display:none">
+            <div class="progress-bar"><div id="progressFill"></div></div>
+            <span id="statusText">Salvataggio in corso...</span>
+        </div>
+    </div>
+
+    <!-- SCHERMATA ANTEPRIMA -->
+    <div id="screen-preview" class="screen">
+        <img id="previewImg" alt="Anteprima">
+        <div class="preview-actions">
+            <button id="btnRiscatta" class="btn-secondary">✕ Scarta</button>
+            <button id="btnConferma" class="btn-primary">✓ Conferma e Invia</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
