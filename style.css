@@ -174,7 +174,9 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     object-fit: contain;
 }
 .preview-actions {
-    text-align: center;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
     padding: 20px 24px;
     width: 100%;
     max-width: 400px;
@@ -182,15 +184,13 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
 }
 .preview-actions .btn-secondary,
 .preview-actions .btn-primary {
-    width: calc(50% - 10px) !important;
+    flex: 1;
     padding: 14px 10px;
     font-size: 15px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0 5px;
+    text-align: center;
 }
 .preview-actions .btn-secondary {
     background: transparent;
