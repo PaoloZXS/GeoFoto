@@ -3,6 +3,7 @@ let cliente = '';
 let stream = null;
 let frontCamera = false;
 let currentFile = null;
+let filePickerFromScarta = false; // true se il file picker è stato aperto da "Scarta", false se da "Avvia Fotocamera"
 
 // Endpoint per upload foto
 const API_URL = '/api/upload';
@@ -21,6 +22,7 @@ const btnChiudi = $('btnChiudi');
 const btnFlip = $('btnFlip');
 const btnRiscatta = $('btnRiscatta');
 const btnConferma = $('btnConferma');
+const btnPreviewIndietro = $('btnPreviewIndietro');
 const previewImg = $('previewImg');
 const uploadStatus = $('uploadStatus');
 const progressFill = $('progressFill');
@@ -32,6 +34,17 @@ const msgTitle = $('msgTitle');
 const msgText = $('msgText');
 const msgBtn = $('msgBtn');
 const suggestionList = $('suggestionList');
+const fileInput = $('fileInput');
+
+// ---- RILEVA SE È DESKTOP ----
+function isMobile() {
+    return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent);
+}
+
+// Adatta etichetta pulsante in base al device
+if (!isMobile()) {
+    btnAvvia.textContent = 'Carica File';
+}
 let clientiEsistenti = [];
 
 // ---- CARICA CLIENTI ESISTENTI ----
@@ -90,8 +103,16 @@ btnAvvia.addEventListener('click', async () => {
     cliente = inputCliente.value.trim();
     if (!cliente) return mostraMessaggio('ℹ️', 'Cliente', 'Inserisci il nome del cliente');
     clienteBadge.textContent = 'Cliente: ' + cliente;
-    await avviaFotocamera();
     inputCliente.value = '';
+
+    if (!isMobile()) {
+        // Desktop: apri file picker invece della fotocamera
+        filePickerFromScarta = false;
+        fileInput.click();
+        return;
+    }
+
+    await avviaFotocamera();
 });
 
 // ---- FOTOCAMERA ----
@@ -132,8 +153,38 @@ btnScatta.addEventListener('click', () => {
     mostraSchermo(screenPreview);
 });
 
+btnPreviewIndietro.addEventListener('click', () => {
+    fermaCamera();
+});
+
 btnRiscatta.addEventListener('click', () => {
+    if (!isMobile()) {
+        // Desktop: riapri file picker
+        filePickerFromScarta = true;
+        fileInput.click();
+        return;
+    }
     mostraSchermo(screenCamera);
+});
+
+// ---- FILE PICKER (DESKTOP) ----
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+        // Annullato: se era da Avvia Fotocamera → torna alla home
+        if (!filePickerFromScarta) fermaCamera();
+        // Se era da Scarta → resta in anteprima
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        previewImg.src = ev.target.result;
+        currentFile = file;
+        mostraSchermo(screenPreview);
+    };
+    reader.readAsDataURL(file);
+    fileInput.value = '';
 });
 
 // ---- INVIO ----
