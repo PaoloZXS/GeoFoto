@@ -25,6 +25,22 @@ const uploadStatus = $('uploadStatus');
 const progressFill = $('progressFill');
 const statusText = $('statusText');
 const clienteBadge = $('clienteBadge');
+const msgOverlay = $('msgOverlay');
+const msgIcon = $('msgIcon');
+const msgTitle = $('msgTitle');
+const msgText = $('msgText');
+const msgBtn = $('msgBtn');
+
+function mostraMessaggio(icona, titolo, testo, callback) {
+    msgIcon.textContent = icona;
+    msgTitle.textContent = titolo;
+    msgText.textContent = testo;
+    msgOverlay.style.display = 'flex';
+    msgBtn.onclick = () => {
+        msgOverlay.style.display = 'none';
+        if (callback) callback();
+    };
+}
 
 // ---- NAVIGAZIONE ----
 function mostraSchermo(screen) {
@@ -35,7 +51,7 @@ function mostraSchermo(screen) {
 // ---- CLIENTE ----
 btnAvvia.addEventListener('click', async () => {
     cliente = inputCliente.value.trim();
-    if (!cliente) return alert('Inserisci il nome del cliente');
+    if (!cliente) return mostraMessaggio('ℹ️', 'Cliente', 'Inserisci il nome del cliente');
     clienteBadge.textContent = 'Cliente: ' + cliente;
     await avviaFotocamera();
 });
@@ -52,7 +68,7 @@ async function avviaFotocamera() {
         video.srcObject = stream;
         mostraSchermo(screenCamera);
     } catch (e) {
-        alert('Errore fotocamera: ' + e.message);
+        mostraMessaggio('❌', 'Fotocamera', e.message);
     }
 }
 
@@ -115,20 +131,20 @@ btnConferma.addEventListener('click', async () => {
         };
 
         xhr.onload = () => {
+            mostraStatus(false, '');
             if (xhr.status === 200) {
-                mostraStatus(false, '');
-                alert('✓ Foto salvata sul server!');
-                mostraSchermo(screenCamera);
+                mostraMessaggio('✅', 'Salvato!', 'Foto salvata sul server', () => {
+                    mostraSchermo(screenCamera);
+                });
             } else {
-                mostraStatus(false, '');
-                alert('✗ Errore: ' + xhr.responseText);
+                mostraMessaggio('❌', 'Errore', xhr.responseText || 'Salvataggio fallito');
             }
             btnConferma.disabled = false;
         };
 
         xhr.onerror = () => {
             mostraStatus(false, '');
-            alert('✗ Errore di rete');
+            mostraMessaggio('❌', 'Errore', 'Errore di connessione al server');
             btnConferma.disabled = false;
         };
 
@@ -136,7 +152,7 @@ btnConferma.addEventListener('click', async () => {
 
     } catch (e) {
         mostraStatus(false, '');
-        alert('Errore: ' + e.message);
+        mostraMessaggio('❌', 'Errore', e.message);
         btnConferma.disabled = false;
     }
 });

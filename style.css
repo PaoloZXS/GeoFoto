@@ -174,3 +174,43 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     gap: 16px;
     padding: 20px;
 }
+
+/* ---------- PANNELLO MESSAGGIO ---------- */
+.msg-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn .2s;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+.msg-panel {
+    background: #16213e;
+    border-radius: 16px;
+    padding: 36px 28px 20px;
+    width: 280px;
+    text-align: center;
+    animation: popIn .25s;
+}
+@keyframes popIn { from { transform: scale(.8); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+.msg-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+.msg-panel h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #fff;
+}
+.msg-panel p {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 20px;
+}
+.msg-panel .btn-primary {
+    width: 100%;
+    max-width: 200px;
+}
