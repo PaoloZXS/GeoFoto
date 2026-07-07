@@ -4,9 +4,7 @@ let stream = null;
 let frontCamera = false;
 let currentFile = null;
 
-// Cambia questo URL quando usi il tunnel locale
-const API_URL = '/api/upload';  // default: stesso server
-// const API_URL = 'https://young-brooms-yell.loca.lt/api/upload';  // tunnel
+const API_URL = 'http://62.110.25.18/upload.php';
 
 // ---- ELEMENTI DOM ----
 const $ = id => document.getElementById(id);
