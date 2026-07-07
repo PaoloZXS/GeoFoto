@@ -146,20 +146,33 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     z-index: 100;
     text-align: center;
 }
+.upload-status .upload-panel {
+    background: #16213e;
+    border-radius: 16px;
+    padding: 40px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    min-width: 280px;
+}
 .upload-status .progress-bar {
-    width: 260px;
-    height: 6px;
-    background: #333;
-    border-radius: 3px;
-    margin-bottom: 12px;
+    width: 100%;
+    height: 8px;
+    background: #0f3460;
+    border-radius: 4px;
     overflow: hidden;
 }
-#progressFill {
+.upload-status #progressFill {
     height: 100%;
     width: 0%;
     background: #4fc3f7;
-    border-radius: 3px;
+    border-radius: 4px;
     transition: width .3s;
+}
+.upload-status #statusText {
+    font-size: 16px;
+    color: #ccc;
 }
 
 /* ---------- SCHERMATA ANTEPRIMA ---------- */
