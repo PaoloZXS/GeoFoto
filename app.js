@@ -226,8 +226,9 @@ btnConferma.addEventListener('click', async () => {
                     if (isMobile()) {
                         mostraSchermo(screenCamera);
                     } else {
-                        fermaCamera();
-                        inputCliente.value = cliente;
+                        // Desktop: riapri subito il file picker per caricare un'altra foto
+                        filePickerFromScarta = false;
+                        fileInput.click();
                     }
                 });
             } else {
