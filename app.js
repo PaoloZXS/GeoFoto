@@ -199,7 +199,7 @@ function mostraStatus(visibile, testo) {
     progressFill.style.width = '0%';
 }
 
-// ---- REGISTRA SW ----
+// ---- DISINSTALLA VECCHIO SW ----
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+    navigator.serviceWorker.getRegistrations().then(r => r.forEach(r => r.unregister()));
 }
