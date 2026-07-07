@@ -79,7 +79,7 @@
     </div>
 
     <!-- FILE INPUT NASCOSTO (per desktop) -->
-    <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
+    <input type="file" id="fileInput" accept="image/*" capture="environment" multiple style="display:none">
 
     <!-- SCHERMATA FOTOCAMERA -->
     <div id="screen-camera" class="screen">
@@ -105,6 +105,7 @@
     <!-- SCHERMATA ANTEPRIMA -->
     <div id="screen-preview" class="screen">
         <img id="previewImg" alt="Anteprima">
+        <div id="multiFileBadge" class="multi-file-badge" style="display:none">0/0</div>
         <div class="preview-actions">
             <button id="btnPreviewIndietro" class="btn-icon-only"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" fill="none" stroke="#4fc3f7" stroke-width="2"/><path d="M14 8l-4 4 4 4" fill="none" stroke="#4fc3f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="icon-label">Indietro</span></button>
             <button id="btnRiscatta" class="btn-icon-only"><svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" fill="none" stroke="#f44" stroke-width="2"/><path d="M8 8l8 8M16 8l-8 8" fill="none" stroke="#f44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="icon-label">Annulla</span></button>

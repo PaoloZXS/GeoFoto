@@ -35,6 +35,7 @@ const msgText = $('msgText');
 const msgBtn = $('msgBtn');
 const suggestionList = $('suggestionList');
 const fileInput = $('fileInput');
+const multiFileBadge = $('multiFileBadge');
 
 // ---- RILEVA SE È DESKTOP ----
 function isMobile() {
@@ -46,6 +47,8 @@ if (!isMobile()) {
     btnAvvia.textContent = 'Carica File';
 }
 let clientiEsistenti = [];
+let pendingFiles = []; // Coda file multipli (desktop)
+let filesTotal = 0;    // Numero totale file selezionati
 
 // ---- CARICA CLIENTI ESISTENTI ----
 fetch('/api/clienti').then(r => r.json()).then(lista => {
@@ -154,12 +157,18 @@ btnScatta.addEventListener('click', () => {
 });
 
 btnPreviewIndietro.addEventListener('click', () => {
+    pendingFiles = [];
+    filesTotal = 0;
+    multiFileBadge.style.display = 'none';
     fermaCamera();
 });
 
 btnRiscatta.addEventListener('click', () => {
     if (!isMobile()) {
         // Desktop: riapri file picker
+        pendingFiles = [];
+        filesTotal = 0;
+        multiFileBadge.style.display = 'none';
         filePickerFromScarta = true;
         fileInput.click();
         return;
@@ -169,23 +178,33 @@ btnRiscatta.addEventListener('click', () => {
 
 // ---- FILE PICKER (DESKTOP) ----
 fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) {
         // Annullato: se era da Avvia Fotocamera → torna alla home
         if (!filePickerFromScarta) fermaCamera();
-        // Se era da Scarta → resta in anteprima
         return;
     }
 
+    pendingFiles = files;
+    filesTotal = files.length;
+    mostraFileInAnteprima(0);
+    fileInput.value = '';
+});
+
+function mostraFileInAnteprima(index) {
+    const file = pendingFiles[index];
+    if (!file) return;
+    currentFile = file;
     const reader = new FileReader();
     reader.onload = (ev) => {
         previewImg.src = ev.target.result;
-        currentFile = file;
+        const fileNum = filesTotal - pendingFiles.length + index + 1;
+        multiFileBadge.textContent = `${fileNum} / ${filesTotal}`;
+        multiFileBadge.style.display = 'block';
         mostraSchermo(screenPreview);
     };
     reader.readAsDataURL(file);
-    fileInput.value = '';
-});
+}
 
 // ---- INVIO ----
 btnConferma.addEventListener('click', async () => {
@@ -193,7 +212,9 @@ btnConferma.addEventListener('click', async () => {
     if (!dataUrl || dataUrl === 'data:,') return;
 
     btnConferma.disabled = true;
-    mostraStatus(true, 'Preparazione...');
+    const fileIdx = filesTotal - pendingFiles.length;
+    const fileCount = filesTotal;
+    mostraStatus(true, fileCount > 1 ? `Preparazione (${fileIdx + 1} di ${fileCount})...` : 'Preparazione...');
 
     try {
         // Converti dataUrl in Blob
@@ -206,7 +227,7 @@ btnConferma.addEventListener('click', async () => {
         formData.append('foto', blob, filename);
         formData.append('cliente', cliente);
 
-        mostraStatus(true, 'Caricamento in corso...');
+        mostraStatus(true, fileCount > 1 ? `Caricamento (${fileIdx + 1} di ${fileCount})...` : 'Caricamento in corso...');
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', API_URL);
@@ -222,6 +243,16 @@ btnConferma.addEventListener('click', async () => {
         xhr.onload = () => {
             mostraStatus(false, '');
             if (xhr.status === 200) {
+                // Se ci sono più file in coda, passa al successivo
+                if (pendingFiles.length > 1) {
+                    pendingFiles.shift(); // Rimuovi quello appena caricato
+                    mostraFileInAnteprima(0);
+                    btnConferma.disabled = false;
+                    return;
+                }
+                pendingFiles = [];
+                filesTotal = 0;
+                multiFileBadge.style.display = 'none';
                 mostraMessaggio('✅', 'Salvataggio eseguito !', '', () => {
                     if (isMobile()) {
                         mostraSchermo(screenCamera);
