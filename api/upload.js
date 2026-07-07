@@ -1,6 +1,6 @@
 const { formidable } = require('formidable');
 const fs = require('fs');
-const { Client } = require('basic-ftp');
+const http = require('http');
 
 async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
@@ -13,33 +13,55 @@ async function handler(req, res) {
 
         if (!file) return res.status(400).send('Nessun file ricevuto');
 
-        const FTP_HOST = process.env.FTP_HOST || '62.110.25.18';
-        const FTP_PORT = parseInt(process.env.FTP_PORT || '21');
-        const FTP_USER = process.env.FTP_USER || 'CondivisioneFoto';
-        const FTP_PASS = process.env.FTP_PASS || '3621spectrum5152';
-        const FTP_ROOT = 'FotoLavori';
+        // Inoltra al PHP sul server web
+        const boundary = '----FormBoundary' + Math.random().toString(36).slice(2);
+        let body = '';
+        body += `--${boundary}\r\n`;
+        body += `Content-Disposition: form-data; name="cliente"\r\n\r\n`;
+        body += `${cliente}\r\n`;
+        body += `--${boundary}\r\n`;
+        body += `Content-Disposition: form-data; name="foto"; filename="${file.originalFilename}"\r\n`;
+        body += `Content-Type: image/jpeg\r\n\r\n`;
 
-        const remoteDir = `${FTP_ROOT}/${cliente}`;
-        const remotePath = `${remoteDir}/${file.originalFilename}`;
+        const fileData = fs.readFileSync(file.filepath);
+        const footer = `\r\n--${boundary}--\r\n`;
 
-        const client = new Client();
-        client.ftp.verbose = false;
+        const bodyBuffer = Buffer.concat([
+            Buffer.from(body, 'utf-8'),
+            fileData,
+            Buffer.from(footer, 'utf-8')
+        ]);
 
-        await client.access({
-            host: FTP_HOST,
-            port: FTP_PORT,
-            user: FTP_USER,
-            password: FTP_PASS,
-            secure: false
+        const options = {
+            hostname: '62.110.25.18',
+            port: 80,
+            path: '/upload.php',
+            method: 'POST',
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${boundary}`,
+                'Content-Length': bodyBuffer.length
+            }
+        };
+
+        const phpRes = await new Promise((resolve, reject) => {
+            const req2 = http.request(options, resolve);
+            req2.on('error', reject);
+            req2.write(bodyBuffer);
+            req2.end();
         });
 
-        await client.ensureDir(remoteDir);
-        await client.uploadFrom(file.filepath, remotePath);
-        client.close();
+        let responseText = '';
+        phpRes.on('data', chunk => responseText += chunk);
+
+        await new Promise(resolve => phpRes.on('end', resolve));
 
         fs.unlink(file.filepath, () => {});
 
-        res.status(200).send('OK');
+        if (phpRes.statusCode === 200) {
+            res.status(200).send('OK');
+        } else {
+            res.status(500).send(responseText || 'Errore PHP');
+        }
     } catch (e) {
         console.error(e);
         res.status(500).send(e.message);
