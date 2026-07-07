@@ -1,6 +1,6 @@
 {
-    "name": "FotoLavori",
-    "short_name": "FotoLavori",
+    "name": "GeoFoto",
+    "short_name": "GeoFoto",
     "description": "Scatta e carica foto di lavori",
     "start_url": "/",
     "display": "standalone",
