@@ -4,6 +4,10 @@ let stream = null;
 let frontCamera = false;
 let currentFile = null;
 
+// Cambia questo URL quando usi il tunnel locale
+const API_URL = '/api/upload';  // default: stesso server
+// const API_URL = 'https://young-brooms-yell.loca.lt/api/upload';  // tunnel
+
 // ---- ELEMENTI DOM ----
 const $ = id => document.getElementById(id);
 const screenCliente = $('screen-cliente');
@@ -102,7 +106,7 @@ btnConferma.addEventListener('click', async () => {
         mostraStatus(true, 'Caricamento in corso...');
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/upload');
+        xhr.open('POST', API_URL);
 
         xhr.upload.onprogress = e => {
             if (e.lengthComputable) {
