@@ -26,7 +26,7 @@
             foreach (char c in Path.GetInvalidFileNameChars())
                 cliente = cliente.Replace(c.ToString(), "");
 
-            string dir = Server.MapPath("~/FotoLavori/" + cliente);
+            string dir = @"C:\InterventiWeb\FotoLavori\" + cliente;
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
