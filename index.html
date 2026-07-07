@@ -15,9 +15,14 @@
     <div id="screen-cliente" class="screen active">
         <div class="card">
             <div class="logo">📷</div>
-            <h1>FotoLavori</h1>
-            <input type="text" id="inputCliente" placeholder="Nome Cliente" autocomplete="off">
-            <small>Le foto vengono salvate in: FotoLavori / NomeCliente /</small>
+            <h1>FotoCampiSolari</h1>
+
+            <div class="autocomplete">
+                <input type="text" id="inputCliente" placeholder="Cerca o inserisci cliente" autocomplete="off">
+                <div id="suggestionList" class="suggestion-list" style="display:none"></div>
+            </div>
+
+            <small>Le foto vengono salvate in: C:\FotoCampiSolari\</small>
             <button id="btnAvvia" class="btn-primary">Avvia Fotocamera</button>
         </div>
     </div>

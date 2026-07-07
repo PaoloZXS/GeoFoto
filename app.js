@@ -30,6 +30,42 @@ const msgIcon = $('msgIcon');
 const msgTitle = $('msgTitle');
 const msgText = $('msgText');
 const msgBtn = $('msgBtn');
+const suggestionList = $('suggestionList');
+let clientiEsistenti = [];
+
+// ---- CARICA CLIENTI ESISTENTI ----
+fetch('/api/clienti').then(r => r.json()).then(lista => {
+    clientiEsistenti = lista;
+}).catch(() => {});
+
+inputCliente.addEventListener('input', () => {
+    const val = inputCliente.value.toLowerCase().trim();
+    suggestionList.innerHTML = '';
+    if (!val) { suggestionList.style.display = 'none'; return; }
+    const match = clientiEsistenti.filter(c => c.toLowerCase().includes(val));
+    if (match.length === 0) { suggestionList.style.display = 'none'; return; }
+    suggestionList.style.display = 'block';
+    match.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.textContent = c;
+        div.onclick = () => {
+            inputCliente.value = c;
+            suggestionList.style.display = 'none';
+        };
+        suggestionList.appendChild(div);
+    });
+});
+
+inputCliente.addEventListener('blur', () => {
+    setTimeout(() => suggestionList.style.display = 'none', 200);
+});
+
+inputCliente.addEventListener('focus', () => {
+    if (inputCliente.value.trim()) {
+        inputCliente.dispatchEvent(new Event('input'));
+    }
+});
 
 function mostraMessaggio(icona, titolo, testo, callback) {
     msgIcon.textContent = icona;
