@@ -24,6 +24,41 @@
             </div>
 
             <button id="btnAvvia" class="btn-primary">Avvia Fotocamera</button>
+            <button id="btnArchivio" class="btn-secondary btn-archivio">Archivio Foto</button>
+        </div>
+    </div>
+
+    <!-- SCHERMATA SELEZIONE CLIENTE ARCHIVIO -->
+    <div id="screen-archivio-clienti" class="screen">
+        <div class="archivio-container">
+            <div class="archivio-header">
+                <button id="btnArchivioIndietro" class="btn-back">← Indietro</button>
+                <h2>📂 Archivio Foto</h2>
+            </div>
+            <p class="archivio-subtitle">Seleziona un cliente per vedere le foto</p>
+            <div id="listaClientiArchivio" class="lista-clienti-archivio"></div>
+        </div>
+    </div>
+
+    <!-- SCHERMATA CAROSELLO -->
+    <div id="screen-carosello" class="screen">
+        <div class="carosello-container">
+            <div class="carosello-header">
+                <button id="btnCaroselloIndietro" class="btn-back">← Indietro</button>
+                <span id="caroselloTitolo" class="carosello-titolo">Cliente</span>
+            </div>
+            <div class="carosello-viewport">
+                <img id="caroselloImg" src="" alt="Foto">
+                <div id="caroselloVuoto" class="carosello-vuoto" style="display:none">
+                    <span>📭</span>
+                    <p>Nessuna foto per questo cliente</p>
+                </div>
+            </div>
+            <div class="carosello-footer">
+                <button id="btnCaroselloPrev" class="btn-nav-carosello">◀</button>
+                <span id="caroselloCounter" class="carosello-counter">0 / 0</span>
+                <button id="btnCaroselloNext" class="btn-nav-carosello">▶</button>
+            </div>
         </div>
     </div>
 

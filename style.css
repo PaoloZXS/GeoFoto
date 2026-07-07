@@ -47,6 +47,10 @@ input[type="text"]::placeholder { color: #666; }
 
 small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
 
+#btnAvvia {
+    margin-top: 20px;
+}
+
 .btn-primary {
     width: 100%;
     padding: 14px;
@@ -197,6 +201,191 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     background: #4fc3f7;
     border: none;
     color: #fff;
+}
+
+/* ---------- PULSANTE ARCHIVIO ---------- */
+.btn-archivio {
+    margin-top: 12px;
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #4fc3f7;
+    border-radius: 10px;
+    background: transparent;
+    color: #4fc3f7;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+}
+.btn-archivio:active {
+    background: #4fc3f7;
+    color: #fff;
+}
+
+/* ---------- SCHERMATA ARCHIVIO CLIENTI ---------- */
+#screen-archivio-clienti {
+    flex-direction: column;
+    background: #1a1a2e;
+}
+.archivio-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+}
+.archivio-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #0f3460;
+    margin-bottom: 16px;
+}
+.archivio-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+.archivio-subtitle {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+.btn-back {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.btn-back:active {
+    background: rgba(255,255,255,.1);
+}
+
+.lista-clienti-archivio {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.item-cliente-archivio {
+    background: #16213e;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background .15s;
+    font-size: 16px;
+    color: #fff;
+    border: none;
+    width: 100%;
+    text-align: left;
+}
+.item-cliente-archivio:active {
+    background: #0f3460;
+}
+.item-cliente-archivio .icona {
+    font-size: 24px;
+}
+.item-cliente-archivio .nome {
+    font-weight: 500;
+}
+.item-cliente-archivio .conta {
+    margin-left: auto;
+    color: #888;
+    font-size: 13px;
+}
+
+/* ---------- CAROSELLO ---------- */
+#screen-carosello {
+    flex-direction: column;
+    background: #000;
+}
+.carosello-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.carosello-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,.8);
+    z-index: 2;
+    position: relative;
+}
+.carosello-titolo {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+}
+.carosello-viewport {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+#caroselloImg {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: opacity .2s;
+}
+.carosello-vuoto {
+    text-align: center;
+    color: #666;
+}
+.carosello-vuoto span {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 16px;
+}
+.carosello-vuoto p {
+    font-size: 18px;
+}
+.carosello-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px;
+    background: rgba(0,0,0,.8);
+}
+.btn-nav-carosello {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid #555;
+    background: transparent;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, border-color .15s;
+}
+.btn-nav-carosello:active {
+    background: rgba(255,255,255,.1);
+    border-color: #4fc3f7;
+}
+.btn-nav-carosello:disabled {
+    opacity: .3;
+    pointer-events: none;
+}
+.carosello-counter {
+    font-size: 16px;
+    color: #ccc;
+    min-width: 60px;
+    text-align: center;
 }
 .preview-actions .btn-secondary:active { background: #333; }
 .preview-actions .btn-primary:active { opacity: .7; }

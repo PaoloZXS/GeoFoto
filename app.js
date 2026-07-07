@@ -80,7 +80,7 @@ function mostraMessaggio(icona, titolo, testo, callback) {
 
 // ---- NAVIGAZIONE ----
 function mostraSchermo(screen) {
-    [screenCliente, screenCamera, screenPreview].forEach(s => s.classList.remove('active'));
+    [screenCliente, screenCamera, screenPreview, screenArchivioClienti, screenCarosello].forEach(s => s.classList.remove('active'));
     screen.classList.add('active');
 }
 
@@ -198,6 +198,123 @@ function mostraStatus(visibile, testo) {
     statusText.textContent = testo;
     progressFill.style.width = '0%';
 }
+
+// ---- ELEMENTI ARCHIVIO / CAROSELLO ----
+const btnArchivio = $('btnArchivio');
+const screenArchivioClienti = $('screen-archivio-clienti');
+const screenCarosello = $('screen-carosello');
+const btnArchivioIndietro = $('btnArchivioIndietro');
+const listaClientiArchivio = $('listaClientiArchivio');
+const btnCaroselloIndietro = $('btnCaroselloIndietro');
+const btnCaroselloPrev = $('btnCaroselloPrev');
+const btnCaroselloNext = $('btnCaroselloNext');
+const caroselloImg = $('caroselloImg');
+const caroselloCounter = $('caroselloCounter');
+const caroselloTitolo = $('caroselloTitolo');
+const caroselloVuoto = $('caroselloVuoto');
+
+let fotoList = [];
+let fotoIndex = 0;
+
+// ---- ARCHIVIO: APRI SELEZIONE CLIENTE ----
+btnArchivio.addEventListener('click', async () => {
+    mostraSchermo(screenArchivioClienti);
+    listaClientiArchivio.innerHTML = '<div style="text-align:center;color:#666;padding:20px">Caricamento...</div>';
+
+    try {
+        const res = await fetch('/api/clienti');
+        const clienti = await res.json();
+        renderListaClienti(clienti);
+    } catch {
+        listaClientiArchivio.innerHTML = '<div style="text-align:center;color:#f44;padding:20px">Errore caricamento clienti</div>';
+    }
+});
+
+function renderListaClienti(clienti) {
+    if (!clienti || clienti.length === 0) {
+        listaClientiArchivio.innerHTML = '<div style="text-align:center;color:#888;padding:20px">Nessun cliente trovato</div>';
+        return;
+    }
+
+    listaClientiArchivio.innerHTML = '';
+    clienti.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'item-cliente-archivio';
+        div.innerHTML = `<span class="icona">📁</span><span class="nome">${c}</span><span class="conta">→</span>`;
+        div.addEventListener('click', () => apriCarosello(c));
+        listaClientiArchivio.appendChild(div);
+    });
+}
+
+// ---- ARCHIVIO: INDIETRO ----
+btnArchivioIndietro.addEventListener('click', () => {
+    fermaCamera();
+    mostraSchermo(screenCliente);
+});
+
+// ---- CAROSELLO ----
+async function apriCarosello(cliente) {
+    mostraSchermo(screenCarosello);
+    caroselloTitolo.textContent = cliente;
+    caroselloImg.style.display = 'none';
+    caroselloVuoto.style.display = 'none';
+    caroselloCounter.textContent = '0 / 0';
+    fotoList = [];
+    fotoIndex = 0;
+
+    try {
+        const res = await fetch(`/api/foto?cliente=${encodeURIComponent(cliente)}`);
+        const nomi = await res.json();
+
+        if (!nomi || nomi.length === 0) {
+            caroselloVuoto.style.display = 'block';
+            return;
+        }
+
+        fotoList = nomi;
+        fotoIndex = 0;
+        mostraFoto();
+    } catch {
+        caroselloVuoto.style.display = 'block';
+        caroselloVuoto.querySelector('p').textContent = 'Errore caricamento foto';
+    }
+}
+
+function mostraFoto() {
+    if (fotoList.length === 0) return;
+
+    const nome = fotoList[fotoIndex];
+    const cliente = caroselloTitolo.textContent;
+    caroselloImg.style.display = 'block';
+    caroselloImg.style.opacity = '0.3';
+    caroselloImg.src = `/api/foto?cliente=${encodeURIComponent(cliente)}&img=${encodeURIComponent(nome)}`;
+    caroselloImg.onload = () => { caroselloImg.style.opacity = '1'; };
+    caroselloCounter.textContent = `${fotoIndex + 1} / ${fotoList.length}`;
+    aggiornaBottoniNav();
+}
+
+function aggiornaBottoniNav() {
+    btnCaroselloPrev.disabled = fotoIndex <= 0;
+    btnCaroselloNext.disabled = fotoIndex >= fotoList.length - 1;
+}
+
+btnCaroselloPrev.addEventListener('click', () => {
+    if (fotoIndex > 0) {
+        fotoIndex--;
+        mostraFoto();
+    }
+});
+
+btnCaroselloNext.addEventListener('click', () => {
+    if (fotoIndex < fotoList.length - 1) {
+        fotoIndex++;
+        mostraFoto();
+    }
+});
+
+btnCaroselloIndietro.addEventListener('click', () => {
+    mostraSchermo(screenArchivioClienti);
+});
 
 // ---- DISINSTALLA VECCHIO SW ----
 if ('serviceWorker' in navigator) {
