@@ -35,7 +35,7 @@ async function handler(req, res) {
         const options = {
             hostname: '62.110.25.18',
             port: 80,
-            path: '/condivisionedati/upload.php',
+            path: '/condivisionedati/upload.aspx',
             method: 'POST',
             headers: {
                 'Content-Type': `multipart/form-data; boundary=${boundary}`,
