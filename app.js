@@ -91,6 +91,7 @@ btnAvvia.addEventListener('click', async () => {
     if (!cliente) return mostraMessaggio('ℹ️', 'Cliente', 'Inserisci il nome del cliente');
     clienteBadge.textContent = 'Cliente: ' + cliente;
     await avviaFotocamera();
+    inputCliente.value = '';
 });
 
 // ---- FOTOCAMERA ----
@@ -251,6 +252,7 @@ function renderListaClienti(clienti) {
 // ---- ARCHIVIO: INDIETRO ----
 btnArchivioIndietro.addEventListener('click', () => {
     fermaCamera();
+    inputCliente.value = '';
     mostraSchermo(screenCliente);
 });
 
