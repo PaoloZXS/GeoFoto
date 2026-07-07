@@ -170,23 +170,21 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     object-fit: contain;
 }
 .preview-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
     padding: 20px 24px;
     width: 100%;
     max-width: 400px;
 }
 .preview-actions .btn-secondary,
 .preview-actions .btn-primary {
-    flex: 1;
     padding: 14px 10px;
     font-size: 15px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
-    width: auto;
-}
-.preview-actions button + button {
-    margin-left: 16px;
+    width: 100%;
 }
 .preview-actions .btn-secondary {
     background: transparent;
