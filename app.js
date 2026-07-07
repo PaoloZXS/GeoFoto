@@ -546,14 +546,6 @@ function renderGriglia(cliente, fotoNomi) {
         selOverlay.className = 'sel-overlay';
         selOverlay.textContent = '✓';
 
-        const btnDel = document.createElement('button');
-        btnDel.className = 'griglia-item-delete';
-        btnDel.textContent = '✕';
-        btnDel.addEventListener('click', e => {
-            e.stopPropagation();
-            mostraConfermaEliminaFoto(cliente, nome);
-        });
-
         // Click sul cerchio = toggle selezione
         selOverlay.addEventListener('click', e => {
             e.stopPropagation();
@@ -565,7 +557,6 @@ function renderGriglia(cliente, fotoNomi) {
 
         item.appendChild(img);
         item.appendChild(selOverlay);
-        item.appendChild(btnDel);
         grigliaFoto.appendChild(item);
     });
 }
