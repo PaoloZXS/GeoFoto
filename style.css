@@ -171,7 +171,6 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
 }
 .preview-actions {
     display: flex;
-    gap: 16px;
     padding: 20px 24px;
     width: 100%;
     max-width: 400px;
@@ -179,12 +178,15 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
 .preview-actions .btn-secondary,
 .preview-actions .btn-primary {
     flex: 1;
-    width: auto !important;
     padding: 14px 10px;
     font-size: 15px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
+    width: auto;
+}
+.preview-actions button + button {
+    margin-left: 16px;
 }
 .preview-actions .btn-secondary {
     background: transparent;
