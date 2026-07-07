@@ -1,11 +1,19 @@
 const { formidable } = require('formidable');
 const fs = require('fs');
 const http = require('http');
-const { requireAuth } = require('./_auth');
+
+function checkAuth(req, res) {
+    const auth = req.headers.authorization || '';
+    if (auth !== 'Bearer geofoto-token-2026') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return false;
+    }
+    return true;
+}
 
 async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
-    if (!requireAuth(req, res)) return;
+    if (!checkAuth(req, res)) return;
 
     try {
         const form = formidable({});

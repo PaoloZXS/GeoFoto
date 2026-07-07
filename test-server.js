@@ -1,26 +1,16 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'geofoto-secret-dev-2026';
+const AUTH_TOKEN = 'geofoto-token-2026';
 const USERNAME = 'Codarini';
 const PASSWORD = 'coda1970rini';
 
-function generateToken() {
-    return jwt.sign({ username: USERNAME }, JWT_SECRET, { expiresIn: '7d' });
-}
-
 function requireAuth(req, res) {
-    const auth = req.headers.authorization || '';
-    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-    try {
-        return jwt.verify(token, JWT_SECRET);
-    } catch {
-        res.writeHead(401, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Unauthorized' }));
-        return null;
-    }
+    if (req.headers.authorization === 'Bearer ' + AUTH_TOKEN) return true;
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Unauthorized' }));
+    return false;
 }
 
 const MIME = {
@@ -57,9 +47,8 @@ const server = http.createServer((req, res) => {
             const username = params.get('username');
             const password = params.get('password');
             if (username === USERNAME && password === PASSWORD) {
-                const token = generateToken();
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ token, username: USERNAME }));
+                res.end(JSON.stringify({ token: AUTH_TOKEN, username: USERNAME }));
             } else {
                 res.writeHead(401, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Credenziali errate' }));

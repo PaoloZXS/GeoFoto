@@ -1,10 +1,18 @@
 const http = require('http');
 const querystring = require('querystring');
-const { requireAuth } = require('./_auth');
+
+function checkAuth(req, res) {
+    const auth = req.headers.authorization || '';
+    if (auth !== 'Bearer geofoto-token-2026') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return false;
+    }
+    return true;
+}
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
-    if (!requireAuth(req, res)) return;
+    if (!checkAuth(req, res)) return;
 
     try {
         const body = await new Promise(resolve => {

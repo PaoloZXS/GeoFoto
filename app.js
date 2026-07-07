@@ -9,10 +9,14 @@ let filePickerFromScarta = false;
 const API_URL = '/api/upload';
 
 // ---- AUTENTICAZIONE ----
+const AUTH_TOKEN = 'geofoto-token-2026';
+const LOGIN_USER = 'Codarini';
+const LOGIN_PASS = 'coda1970rini';
+
 let authToken = localStorage.getItem('geofoto_token') || '';
 const savedUser = localStorage.getItem('geofoto_user') || '';
 
-function isLoggedIn() { return !!authToken; }
+function isLoggedIn() { return authToken === AUTH_TOKEN; }
 
 function apiFetch(url, opts = {}) {
     if (!opts.headers) opts.headers = {};
@@ -149,7 +153,7 @@ function mostraSchermo(screen) {
 }
 
 // ---- LOGIN / LOGOUT ----
-btnLogin.addEventListener('click', async () => {
+btnLogin.addEventListener('click', () => {
     const username = loginUser.value.trim();
     const password = loginPass.value;
     if (!username || !password) {
@@ -157,34 +161,18 @@ btnLogin.addEventListener('click', async () => {
         loginError.style.display = 'block';
         return;
     }
-    loginError.style.display = 'none';
-    btnLogin.disabled = true;
-    btnLogin.textContent = 'Accesso in corso...';
 
-    try {
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-        });
-        const data = await res.json();
-        if (res.ok && data.token) {
-            authToken = data.token;
-            localStorage.setItem('geofoto_token', data.token);
-            localStorage.setItem('geofoto_user', username);
-            mostraSchermo(screenCliente);
-            caricaClienti();
-        } else {
-            loginError.textContent = data.error || 'Credenziali errate';
-            loginError.style.display = 'block';
-        }
-    } catch {
-        loginError.textContent = 'Errore di connessione';
+    if (username === LOGIN_USER && password === LOGIN_PASS) {
+        authToken = AUTH_TOKEN;
+        localStorage.setItem('geofoto_token', AUTH_TOKEN);
+        localStorage.setItem('geofoto_user', username);
+        loginError.style.display = 'none';
+        mostraSchermo(screenCliente);
+        caricaClienti();
+    } else {
+        loginError.textContent = 'Credenziali errate';
         loginError.style.display = 'block';
     }
-
-    btnLogin.disabled = false;
-    btnLogin.textContent = 'Accedi';
 });
 
 loginUser.addEventListener('keydown', e => { if (e.key === 'Enter') loginPass.focus(); });
