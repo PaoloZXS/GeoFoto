@@ -14,17 +14,20 @@
 
     <!-- SCHERMATA LOGIN -->
     <div id="screen-login" class="screen active">
-        <div class="card">
-            <div class="logo">🔐</div>
-            <h1 style="font-size:22px">Accesso GeoFoto</h1>
-            <input type="text" id="loginUser" placeholder="Username" autocomplete="username" style="margin-bottom:12px">
-            <div class="password-wrapper">
-                <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
-                <button id="btnMostraPass" class="btn-eye" type="button" aria-label="Mostra password"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <div class="login-left">
+            <div class="card">
+                <div class="logo">🔐</div>
+                <h1 style="font-size:22px">Accesso GeoFoto</h1>
+                <input type="text" id="loginUser" placeholder="Username" autocomplete="username" style="margin-bottom:12px">
+                <div class="password-wrapper">
+                    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+                    <button id="btnMostraPass" class="btn-eye" type="button" aria-label="Mostra password"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                </div>
+                <button id="btnLogin" class="btn-primary">Accedi</button>
+                <p id="loginError" style="color:#f44;font-size:14px;margin-top:12px;display:none"></p>
             </div>
-            <button id="btnLogin" class="btn-primary">Accedi</button>
-            <p id="loginError" style="color:#f44;font-size:14px;margin-top:12px;display:none"></p>
         </div>
+        <div class="login-right"></div>
     </div>
 
     <!-- SCHERMATA CLIENTE -->

@@ -21,15 +21,27 @@ html, body {
     padding: 24px;
 }
 
-/* Schermata login con sfondo */
+/* Schermata login: card a sinistra, immagine a destra */
 #screen-login {
+    flex-direction: row;
+    padding: 0;
+    background: #1a1a2e;
+}
+#screen-login .login-left {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: #1a1a2e url('sfondo.jpg') center / cover no-repeat;
 }
-#screen-login .card { background: rgba(22, 33, 62, .92); backdrop-filter: blur(4px); }
+#screen-login .login-right {
+    flex: 1;
+    background: url('sfondo.jpg') center / cover no-repeat;
+}
+#screen-login .card { background: #16213e; }
 .card {
     background: #16213e;
     border-radius: 16px;
