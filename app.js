@@ -499,7 +499,7 @@ btnCaroselloIndietro.addEventListener('click', () => {
     else mostraSchermo(screenArchivioClienti);
 });
 
-// ---- DISINSTALLA VECCHIO SW ----
+// ---- SERVIZI OFF LINE ----
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(r => r.forEach(r => r.unregister()));
+    navigator.serviceWorker.register('/sw.js');
 }
