@@ -170,21 +170,23 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     object-fit: contain;
 }
 .preview-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    text-align: center;
     padding: 20px 24px;
     width: 100%;
     max-width: 400px;
+    margin: 0 auto;
 }
 .preview-actions .btn-secondary,
 .preview-actions .btn-primary {
+    width: calc(50% - 10px) !important;
     padding: 14px 10px;
     font-size: 15px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
-    width: 100%;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 5px;
 }
 .preview-actions .btn-secondary {
     background: transparent;
