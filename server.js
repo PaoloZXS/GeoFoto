@@ -4,11 +4,11 @@ const path = require('path');
 const formidable = require('formidable');
 const ftp = require('basic-ftp');
 
-const PORT = 3000;
-const FTP_HOST = '62.110.25.18';
-const FTP_PORT = 21;
-const FTP_USER = 'CondivisioneFoto';
-const FTP_PASS = '3621spectrum5152';
+const PORT = process.env.PORT || 3000;
+const FTP_HOST = process.env.FTP_HOST || '62.110.25.18';
+const FTP_PORT = parseInt(process.env.FTP_PORT || '21');
+const FTP_USER = process.env.FTP_USER || 'CondivisioneFoto';
+const FTP_PASS = process.env.FTP_PASS || '3621spectrum5152';
 const FTP_ROOT = 'FotoLavori';
 
 const MIME = {
@@ -67,8 +67,6 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-server.listen(PORT, () => {
-    console.log(`\n  🚀 FotoLavori in locale:`);
-    console.log(`  📍 http://localhost:${PORT}`);
-    console.log(`  📸 Apri con Chrome/Edge e concedi il permesso fotocamera\n`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n  🚀 FotoLavori avviato sulla porta ${PORT}`);
 });
