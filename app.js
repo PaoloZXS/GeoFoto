@@ -4,7 +4,7 @@ let stream = null;
 let frontCamera = false;
 let currentFile = null;
 
-const API_URL = 'http://62.110.25.18/upload.php';
+const API_URL = '/api/upload';
 
 // ---- ELEMENTI DOM ----
 const $ = id => document.getElementById(id);
