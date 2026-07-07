@@ -4,6 +4,7 @@ let stream = null;
 let frontCamera = false;
 let currentFile = null;
 
+// Endpoint per upload foto
 const API_URL = '/api/upload';
 
 // ---- ELEMENTI DOM ----
