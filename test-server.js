@@ -35,6 +35,23 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API mock /api/elimina-foto
+    if (pathname === '/api/elimina-foto' && req.method === 'POST') {
+        let body = '';
+        req.on('data', c => body += c);
+        req.on('end', () => {
+            const params = new URLSearchParams(body);
+            const cliente = params.get('cliente');
+            const foto = params.get('foto');
+            if (fotoTest[cliente]) {
+                fotoTest[cliente] = fotoTest[cliente].filter(f => f !== foto);
+            }
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('OK');
+        });
+        return;
+    }
+
     // API mock /api/elimina-cliente
     if (pathname === '/api/elimina-cliente' && req.method === 'POST') {
         let body = '';

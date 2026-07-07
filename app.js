@@ -81,7 +81,7 @@ function mostraMessaggio(icona, titolo, testo, callback) {
 
 // ---- NAVIGAZIONE ----
 function mostraSchermo(screen) {
-    [screenCliente, screenCamera, screenPreview, screenArchivioClienti, screenCarosello].forEach(s => s.classList.remove('active'));
+    [screenCliente, screenCamera, screenPreview, screenArchivioClienti, screenGriglia, screenCarosello].forEach(s => s.classList.remove('active'));
     screen.classList.add('active');
 }
 
@@ -201,12 +201,18 @@ function mostraStatus(visibile, testo) {
     progressFill.style.width = '0%';
 }
 
-// ---- ELEMENTI ARCHIVIO / CAROSELLO ----
+// ---- ELEMENTI ARCHIVIO / GRIGLIA / CAROSELLO ----
 const btnArchivio = $('btnArchivio');
 const screenArchivioClienti = $('screen-archivio-clienti');
+const screenGriglia = $('screen-griglia');
 const screenCarosello = $('screen-carosello');
 const btnArchivioIndietro = $('btnArchivioIndietro');
 const listaClientiArchivio = $('listaClientiArchivio');
+const btnGrigliaIndietro = $('btnGrigliaIndietro');
+const grigliaTitolo = $('grigliaTitolo');
+const grigliaConta = $('grigliaConta');
+const grigliaFoto = $('grigliaFoto');
+const grigliaVuoto = $('grigliaVuoto');
 const btnCaroselloIndietro = $('btnCaroselloIndietro');
 const btnCaroselloPrev = $('btnCaroselloPrev');
 const btnCaroselloNext = $('btnCaroselloNext');
@@ -217,6 +223,7 @@ const caroselloVuoto = $('caroselloVuoto');
 
 let fotoList = [];
 let fotoIndex = 0;
+let clienteCorrente = '';
 
 // ---- ARCHIVIO: APRI SELEZIONE CLIENTE ----
 btnArchivio.addEventListener('click', async () => {
@@ -247,64 +254,84 @@ function renderListaClienti(clienti) {
             <span class="elimina-cliente" data-cliente="${c}">🗑️</span>`;
         div.addEventListener('click', e => {
             if (e.target.classList.contains('elimina-cliente')) return;
-            apriCarosello(c);
+            apriGriglia(c);
         });
         listaClientiArchivio.appendChild(div);
     });
 
-    // Aggiungi handler eliminazione
     document.querySelectorAll('.elimina-cliente').forEach(btn => {
         btn.addEventListener('click', e => {
             e.stopPropagation();
-            const cliente = btn.dataset.cliente;
-            mostraConfermaElimina(cliente);
+            mostraConfermaElimina(btn.dataset.cliente);
         });
     });
 }
 
-// ---- CONFERMA ELIMINAZIONE CLIENTE ----
+// ---- CONFERMA ELIMINAZIONE (cliente o singola foto) ----
 const confirmOverlay = $('confirmOverlay');
 const confirmTitle = $('confirmTitle');
 const confirmText = $('confirmText');
 const confirmConferma = $('confirmConferma');
 const confirmAnnulla = $('confirmAnnulla');
-let clienteDaEliminare = '';
+let confermaTarget = null; // { tipo: 'cliente', cliente: '...' } oppure { tipo: 'foto', cliente: '...', foto: '...' }
 
 function mostraConfermaElimina(cliente) {
-    clienteDaEliminare = cliente;
+    confermaTarget = { tipo: 'cliente', cliente };
     confirmTitle.textContent = `Eliminare ${cliente}?`;
     confirmText.textContent = 'Tutte le foto di questo cliente verranno cancellate definitivamente.';
     confirmOverlay.style.display = 'flex';
 }
 
+function mostraConfermaEliminaFoto(cliente, foto) {
+    confermaTarget = { tipo: 'foto', cliente, foto };
+    confirmTitle.textContent = 'Eliminare questa foto?';
+    confirmText.textContent = 'La foto verrà cancellata definitivamente.';
+    confirmOverlay.style.display = 'flex';
+}
+
 confirmAnnulla.addEventListener('click', () => {
     confirmOverlay.style.display = 'none';
-    clienteDaEliminare = '';
+    confermaTarget = null;
 });
 
 confirmConferma.addEventListener('click', async () => {
-    const c = clienteDaEliminare;
+    const target = confermaTarget;
     confirmOverlay.style.display = 'none';
-    clienteDaEliminare = '';
+    confermaTarget = null;
+    if (!target) return;
 
-    try {
-        const res = await fetch('/api/elimina-cliente', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `cliente=${encodeURIComponent(c)}`
-        });
-
-        if (res.ok) {
-            mostraMessaggio('✅', 'Eliminato!', `Cartella "${c}" eliminata con successo`, () => {
-                // Ricarica lista clienti
-                btnArchivio.click();
+    if (target.tipo === 'cliente') {
+        try {
+            const res = await fetch('/api/elimina-cliente', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `cliente=${encodeURIComponent(target.cliente)}`
             });
-        } else {
-            const txt = await res.text();
-            mostraMessaggio('❌', 'Errore', txt || 'Eliminazione fallita');
+            if (res.ok) {
+                mostraMessaggio('✅', 'Eliminato!', `Cartella "${target.cliente}" eliminata`, () => btnArchivio.click());
+            } else {
+                const txt = await res.text();
+                mostraMessaggio('❌', 'Errore', txt || 'Eliminazione fallita');
+            }
+        } catch (e) {
+            mostraMessaggio('❌', 'Errore', e.message);
         }
-    } catch (e) {
-        mostraMessaggio('❌', 'Errore', e.message);
+    } else if (target.tipo === 'foto') {
+        try {
+            const res = await fetch('/api/elimina-foto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `cliente=${encodeURIComponent(target.cliente)}&foto=${encodeURIComponent(target.foto)}`
+            });
+            if (res.ok) {
+                mostraMessaggio('✅', 'Foto eliminata!', '', () => apriGriglia(target.cliente));
+            } else {
+                const txt = await res.text();
+                mostraMessaggio('❌', 'Errore', txt || 'Eliminazione fallita');
+            }
+        } catch (e) {
+            mostraMessaggio('❌', 'Errore', e.message);
+        }
     }
 });
 
@@ -315,32 +342,79 @@ btnArchivioIndietro.addEventListener('click', () => {
     mostraSchermo(screenCliente);
 });
 
-// ---- CAROSELLO ----
-async function apriCarosello(cliente) {
-    mostraSchermo(screenCarosello);
-    caroselloTitolo.textContent = cliente;
-    caroselloImg.style.display = 'none';
-    caroselloVuoto.style.display = 'none';
-    caroselloCounter.textContent = '0 / 0';
-    fotoList = [];
-    fotoIndex = 0;
+// ---- GRIGLIA FOTO ----
+async function apriGriglia(cliente) {
+    clienteCorrente = cliente;
+    mostraSchermo(screenGriglia);
+    grigliaTitolo.textContent = cliente;
+    grigliaConta.textContent = '';
+    grigliaFoto.innerHTML = '';
+    grigliaVuoto.style.display = 'none';
 
     try {
         const res = await fetch(`/api/foto?cliente=${encodeURIComponent(cliente)}`);
         const nomi = await res.json();
 
         if (!nomi || nomi.length === 0) {
-            caroselloVuoto.style.display = 'block';
+            grigliaVuoto.style.display = 'flex';
             return;
         }
 
-        fotoList = nomi;
-        fotoIndex = 0;
-        mostraFoto();
+        grigliaConta.textContent = `${nomi.length} foto`;
+        renderGriglia(cliente, nomi);
     } catch {
-        caroselloVuoto.style.display = 'block';
-        caroselloVuoto.querySelector('p').textContent = 'Errore caricamento foto';
+        grigliaVuoto.style.display = 'flex';
+        grigliaVuoto.querySelector('p').textContent = 'Errore caricamento foto';
     }
+}
+
+function renderGriglia(cliente, fotoNomi) {
+    grigliaFoto.innerHTML = '';
+    fotoNomi.forEach(nome => {
+        const item = document.createElement('div');
+        item.className = 'griglia-item';
+
+        const img = document.createElement('img');
+        img.loading = 'lazy';
+        img.src = `/api/foto?cliente=${encodeURIComponent(cliente)}&img=${encodeURIComponent(nome)}`;
+        img.alt = nome;
+
+        const btnDel = document.createElement('button');
+        btnDel.className = 'griglia-item-delete';
+        btnDel.textContent = '✕';
+        btnDel.addEventListener('click', e => {
+            e.stopPropagation();
+            mostraConfermaEliminaFoto(cliente, nome);
+        });
+
+        item.appendChild(img);
+        item.appendChild(btnDel);
+        item.addEventListener('click', () => apriCarosello(cliente, fotoNomi, nome));
+        grigliaFoto.appendChild(item);
+    });
+}
+
+btnGrigliaIndietro.addEventListener('click', () => {
+    mostraSchermo(screenArchivioClienti);
+});
+
+// ---- CAROSELLO ----
+async function apriCarosello(cliente, listaNomi, fotoAvvio) {
+    mostraSchermo(screenCarosello);
+    caroselloTitolo.textContent = cliente;
+    caroselloImg.style.display = 'none';
+    caroselloVuoto.style.display = 'none';
+    caroselloCounter.textContent = '0 / 0';
+    fotoList = listaNomi || [];
+    fotoIndex = fotoAvvio ? listaNomi.indexOf(fotoAvvio) : 0;
+    if (fotoIndex < 0) fotoIndex = 0;
+
+    if (fotoList.length === 0) {
+        caroselloVuoto.style.display = 'block';
+        return;
+    }
+
+    mostraFoto();
 }
 
 function mostraFoto() {
@@ -362,21 +436,16 @@ function aggiornaBottoniNav() {
 }
 
 btnCaroselloPrev.addEventListener('click', () => {
-    if (fotoIndex > 0) {
-        fotoIndex--;
-        mostraFoto();
-    }
+    if (fotoIndex > 0) { fotoIndex--; mostraFoto(); }
 });
 
 btnCaroselloNext.addEventListener('click', () => {
-    if (fotoIndex < fotoList.length - 1) {
-        fotoIndex++;
-        mostraFoto();
-    }
+    if (fotoIndex < fotoList.length - 1) { fotoIndex++; mostraFoto(); }
 });
 
 btnCaroselloIndietro.addEventListener('click', () => {
-    mostraSchermo(screenArchivioClienti);
+    if (clienteCorrente) apriGriglia(clienteCorrente);
+    else mostraSchermo(screenArchivioClienti);
 });
 
 // ---- DISINSTALLA VECCHIO SW ----
