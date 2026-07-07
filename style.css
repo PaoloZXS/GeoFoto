@@ -20,6 +20,16 @@ html, body {
     justify-content: center;
     padding: 24px;
 }
+
+/* Schermata login con sfondo */
+#screen-login {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #1a1a2e url('sfondo.jpg') center / cover no-repeat;
+}
+#screen-login .card { background: rgba(22, 33, 62, .92); backdrop-filter: blur(4px); }
 .card {
     background: #16213e;
     border-radius: 16px;
