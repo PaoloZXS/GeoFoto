@@ -35,7 +35,7 @@ let clientiEsistenti = [];
 
 // ---- CARICA CLIENTI ESISTENTI ----
 fetch('/api/clienti').then(r => r.json()).then(lista => {
-    clientiEsistenti = lista;
+    clientiEsistenti = Array.isArray(lista) ? lista.sort((a, b) => a.localeCompare(b)) : [];
 }).catch(() => {});
 
 inputCliente.addEventListener('input', () => {
@@ -223,7 +223,8 @@ btnArchivio.addEventListener('click', async () => {
 
     try {
         const res = await fetch('/api/clienti');
-        const clienti = await res.json();
+        let clienti = await res.json();
+        if (Array.isArray(clienti)) clienti.sort((a, b) => a.localeCompare(b));
         renderListaClienti(clienti);
     } catch {
         listaClientiArchivio.innerHTML = '<div style="text-align:center;color:#f44;padding:20px">Errore caricamento clienti</div>';
