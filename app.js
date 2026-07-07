@@ -271,16 +271,14 @@ async function uploadFileMulti(index) {
             pendingFiles = [];
             filesTotal = 0;
             mostraStatus(false, '');
-            mostraMessaggio('✅', 'Salvataggio eseguito !', '', () => {
-                if (isMobile()) {
-                    mostraSchermo(screenCamera);
-                } else {
-                    previewImg.src = 'data:,';
-                    currentFile = null;
-                    filePickerFromScarta = false;
-                    fileInput.click();
-                }
-            });
+            if (isMobile()) {
+                mostraSchermo(screenCamera);
+            } else {
+                previewImg.src = 'data:,';
+                currentFile = null;
+                filePickerFromScarta = false;
+                fileInput.click();
+            }
         }
     } catch (e) {
         mostraStatus(false, '');
@@ -325,17 +323,15 @@ btnConferma.addEventListener('click', async () => {
         xhr.onload = () => {
             mostraStatus(false, '');
             if (xhr.status === 200) {
-                mostraMessaggio('✅', 'Salvataggio eseguito !', '', () => {
-                    if (isMobile()) {
-                        mostraSchermo(screenCamera);
-                    } else {
-                        // Desktop: pulisci anteprima e riapri subito il file picker
-                        previewImg.src = 'data:,';
-                        currentFile = null;
-                        filePickerFromScarta = false;
-                        fileInput.click();
-                    }
-                });
+                if (isMobile()) {
+                    mostraSchermo(screenCamera);
+                } else {
+                    // Desktop: pulisci anteprima e riapri subito il file picker
+                    previewImg.src = 'data:,';
+                    currentFile = null;
+                    filePickerFromScarta = false;
+                    fileInput.click();
+                }
             } else {
                 mostraMessaggio('❌', 'Errore', xhr.responseText || 'Salvataggio fallito');
             }
