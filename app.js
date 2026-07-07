@@ -190,7 +190,6 @@ fileInput.addEventListener('change', (e) => {
 
     if (files.length > 1) {
         // Multi-file: upload automatico in sequenza
-        mostraSchermo(screenCamera);
         mostraStatus(true, `Caricamento 1 di ${filesTotal}...`);
         uploadFileMulti(0);
     } else {
