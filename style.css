@@ -295,18 +295,13 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
 .item-cliente-archivio .nome {
     font-weight: 500;
 }
-.item-cliente-archivio .conta {
-    margin-left: auto;
-    color: #888;
-    font-size: 13px;
-}
 .elimina-cliente {
+    margin-left: auto;
     font-size: 18px;
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 6px;
     transition: background .15s;
-    margin-left: 8px;
 }
 .elimina-cliente:active {
     background: rgba(255,0,0,.2);

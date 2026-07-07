@@ -244,8 +244,7 @@ function renderListaClienti(clienti) {
         const div = document.createElement('div');
         div.className = 'item-cliente-archivio';
         div.innerHTML = `<span class="icona">📁</span><span class="nome">${c}</span>
-            <span class="elimina-cliente" data-cliente="${c}">🗑️</span>
-            <span class="conta">→</span>`;
+            <span class="elimina-cliente" data-cliente="${c}">🗑️</span>`;
         div.addEventListener('click', e => {
             if (e.target.classList.contains('elimina-cliente')) return;
             apriCarosello(c);
