@@ -482,7 +482,7 @@ confirmConferma.addEventListener('click', async () => {
                 body: `cliente=${encodeURIComponent(target.cliente)}&foto=${encodeURIComponent(target.foto)}`
             });
             if (res.ok) {
-                mostraMessaggio('✅', 'Foto eliminata!', '', () => apriGriglia(target.cliente));
+                apriGriglia(target.cliente);
             } else {
                 const txt = await res.text();
                 mostraMessaggio('❌', 'Errore', txt || 'Eliminazione fallita');
