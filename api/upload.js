@@ -5,10 +5,10 @@ import path from 'path';
 
 export const config = { api: { bodyParser: false } };
 
-const FTP_HOST = '62.110.25.18';
-const FTP_PORT = 21;
-const FTP_USER = 'CondivisioneFoto';
-const FTP_PASS = '3621spectrum5152';
+const FTP_HOST = process.env.FTP_HOST || '62.110.25.18';
+const FTP_PORT = parseInt(process.env.FTP_PORT || '21');
+const FTP_USER = process.env.FTP_USER || 'CondivisioneFoto';
+const FTP_PASS = process.env.FTP_PASS || '3621spectrum5152';
 const FTP_ROOT = 'FotoLavori';
 
 export default async function handler(req, res) {
