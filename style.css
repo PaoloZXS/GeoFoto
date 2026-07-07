@@ -368,6 +368,14 @@ small { display: block; margin: 8px 0 20px; color: #888; font-size: 12px; }
     gap: 8px;
     align-content: start;
 }
+
+/* Desktop: anteprime più piccole e più colonne */
+@media (min-width: 600px) {
+    .griglia-foto {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 180px));
+        justify-content: center;
+    }
+}
 .griglia-item {
     position: relative;
     aspect-ratio: 1;
