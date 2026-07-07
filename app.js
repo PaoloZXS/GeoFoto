@@ -187,7 +187,16 @@ fileInput.addEventListener('change', (e) => {
 
     pendingFiles = files;
     filesTotal = files.length;
-    mostraFileInAnteprima(0);
+
+    if (files.length > 1) {
+        // Multi-file: upload automatico in sequenza
+        mostraSchermo(screenCamera);
+        mostraStatus(true, `Caricamento 1 di ${filesTotal}...`);
+        uploadFileMulti(0);
+    } else {
+        // Singolo file: mostra anteprima come prima
+        mostraFileInAnteprima(0);
+    }
     fileInput.value = '';
 });
 
@@ -206,15 +215,89 @@ function mostraFileInAnteprima(index) {
     reader.readAsDataURL(file);
 }
 
+async function uploadFileMulti(index) {
+    const file = pendingFiles[index];
+    if (!file) return;
+
+    const fileNum = filesTotal - pendingFiles.length + index + 1;
+    mostraStatus(true, `Caricamento ${fileNum} di ${filesTotal}...`);
+
+    try {
+        // Leggi il file come data URL
+        const dataUrl = await new Promise(resolve => {
+            const r = new FileReader();
+            r.onload = e => resolve(e.target.result);
+            r.readAsDataURL(file);
+        });
+
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+
+        const filename = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0,14) + '.jpg';
+
+        const formData = new FormData();
+        formData.append('foto', blob, filename);
+        formData.append('cliente', cliente);
+
+        const uploaded = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', API_URL);
+
+            xhr.upload.onprogress = e => {
+                if (e.lengthComputable) {
+                    const pct = Math.round(e.loaded / e.total * 100);
+                    progressFill.style.width = pct + '%';
+                    statusText.textContent = `File ${fileNum}/${filesTotal} ${pct}%`;
+                }
+            };
+
+            xhr.onload = () => resolve(xhr.status === 200);
+            xhr.onerror = () => resolve(false);
+            xhr.send(formData);
+        });
+
+        if (!uploaded) {
+            mostraStatus(false, '');
+            mostraMessaggio('❌', 'Errore', `Caricamento file ${fileNum} fallito`);
+            pendingFiles = [];
+            filesTotal = 0;
+            return;
+        }
+
+        // Passa al prossimo file
+        if (index + 1 < pendingFiles.length) {
+            uploadFileMulti(index + 1);
+        } else {
+            // Tutti caricati!
+            pendingFiles = [];
+            filesTotal = 0;
+            mostraStatus(false, '');
+            mostraMessaggio('✅', 'Salvataggio eseguito !', '', () => {
+                if (isMobile()) {
+                    mostraSchermo(screenCamera);
+                } else {
+                    previewImg.src = 'data:,';
+                    currentFile = null;
+                    filePickerFromScarta = false;
+                    fileInput.click();
+                }
+            });
+        }
+    } catch (e) {
+        mostraStatus(false, '');
+        mostraMessaggio('❌', 'Errore', e.message);
+        pendingFiles = [];
+        filesTotal = 0;
+    }
+}
+
 // ---- INVIO ----
 btnConferma.addEventListener('click', async () => {
     const dataUrl = previewImg.src;
     if (!dataUrl || dataUrl === 'data:,') return;
 
     btnConferma.disabled = true;
-    const fileIdx = filesTotal - pendingFiles.length;
-    const fileCount = filesTotal;
-    mostraStatus(true, fileCount > 1 ? `Preparazione (${fileIdx + 1} di ${fileCount})...` : 'Preparazione...');
+    mostraStatus(true, 'Preparazione...');
 
     try {
         // Converti dataUrl in Blob
@@ -227,7 +310,7 @@ btnConferma.addEventListener('click', async () => {
         formData.append('foto', blob, filename);
         formData.append('cliente', cliente);
 
-        mostraStatus(true, fileCount > 1 ? `Caricamento (${fileIdx + 1} di ${fileCount})...` : 'Caricamento in corso...');
+        mostraStatus(true, 'Caricamento in corso...');
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', API_URL);
@@ -243,16 +326,6 @@ btnConferma.addEventListener('click', async () => {
         xhr.onload = () => {
             mostraStatus(false, '');
             if (xhr.status === 200) {
-                // Se ci sono più file in coda, passa al successivo
-                if (pendingFiles.length > 1) {
-                    pendingFiles.shift(); // Rimuovi quello appena caricato
-                    mostraFileInAnteprima(0);
-                    btnConferma.disabled = false;
-                    return;
-                }
-                pendingFiles = [];
-                filesTotal = 0;
-                multiFileBadge.style.display = 'none';
                 mostraMessaggio('✅', 'Salvataggio eseguito !', '', () => {
                     if (isMobile()) {
                         mostraSchermo(screenCamera);
